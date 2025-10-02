@@ -9,7 +9,6 @@ struct ContentView: View {
     }
 }
 
-// MARK: - VIEW DO GRÁFICO CORRIGIDA PARA IOS 16
 struct SpendingChartView: View {
     let spendingData: [CategorySpending]
     let currencyCode: String
@@ -36,8 +35,6 @@ struct SpendingChartView: View {
                 AxisTick()
                 AxisValueLabel {
                     if let amount = value.as(Double.self) {
-                        // *** A CORREÇÃO ESTÁ AQUI ***
-                        // Removemos .notation(.compactName) para garantir compatibilidade com iOS 16
                         Text(amount.formatted(.currency(code: currencyCode)))
                     }
                 }
@@ -200,9 +197,13 @@ struct TripDetailView: View {
     @State private var showingAddExpenseSheet = false
     @State private var showingEndTripAlert = false
     @Environment(\.presentationMode) var presentationMode
+    
+    @State private var showShareSheet = false
+    @State private var csvURLToShare: URL?
 
     var body: some View {
         List {
+            // A secção do resumo do orçamento é escondida para viagens concluídas
             if !trip.isCompleted {
                 Section(header: Text("budget_summary")) {
                     BudgetSummaryView(trip: trip)
@@ -227,28 +228,49 @@ struct TripDetailView: View {
                     ExpenseRowView(expense: expense, currencyCode: trip.currency.code)
                 }
                 .onDelete { offsets in
-                    viewModel.deleteExpense(from: tripId, at: offsets)
+                    // Só permite apagar despesas em viagens ativas
+                    if !trip.isCompleted {
+                        viewModel.deleteExpense(from: tripId, at: offsets)
+                    }
                 }
             }
         }
         .listStyle(InsetGroupedListStyle())
         .navigationTitle(trip.destination)
         .toolbar {
-            if !trip.isCompleted {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack {
-                        Button(action: { showingEndTripAlert = true }) {
-                            Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+            // ** A LÓGICA FOI MOVIDA E INVERTIDA AQUI **
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                // Se a viagem está CONCLUÍDA, mostra o botão de partilha
+                if trip.isCompleted {
+                    if !trip.expenses.isEmpty {
+                        Button(action: {
+                            self.csvURLToShare = trip.generateCSV()
+                            if self.csvURLToShare != nil {
+                                self.showShareSheet = true
+                            }
+                        }) {
+                            Image(systemName: "square.and.arrow.up")
                         }
-                        Button(action: { showingAddExpenseSheet = true }) {
-                            Image(systemName: "plus.circle.fill")
-                        }
+                    }
+                }
+                // Senão (se a viagem está ATIVA), mostra os outros botões
+                else {
+                    Button(action: { showingEndTripAlert = true }) {
+                        Image(systemName: "checkmark.circle.fill")
+                    }
+                    Button(action: { showingAddExpenseSheet = true }) {
+                        Image(systemName: "plus.circle.fill")
                     }
                 }
             }
         }
         .sheet(isPresented: $showingAddExpenseSheet) {
             AddExpenseView(viewModel: viewModel, tripId: trip.id, currency: trip.currency)
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let url = csvURLToShare {
+                ShareSheet(activityItems: [url])
+            }
         }
         .alert("complete_trip_q", isPresented: $showingEndTripAlert) {
             Button("cancel", role: .cancel) {}
@@ -260,6 +282,17 @@ struct TripDetailView: View {
             Text("complete_trip_message")
         }
     }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 struct AddExpenseView: View {

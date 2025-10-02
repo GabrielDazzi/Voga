@@ -1,5 +1,8 @@
 import Foundation
 import SwiftUI
+import UniformTypeIdentifiers
+
+// A struct CSVFile FOI REMOVIDA daqui, pois dependia de APIs do iOS 17.
 
 struct CategorySpending: Identifiable {
     let id = UUID()
@@ -95,7 +98,6 @@ struct Trip: Identifiable, Codable {
     var isCompleted: Bool = false
 }
 
-// A LÓGICA DE CÁLCULO PERTENCE E VIVE APENAS AQUI.
 extension Trip {
     var totalSpent: Double {
         expenses.reduce(0) { $0 + $1.amount }
@@ -121,5 +123,36 @@ extension Trip {
             let total = expenses.reduce(0) { $0 + $1.amount }
             return CategorySpending(category: category, totalAmount: total)
         }.sorted(by: { $0.totalAmount > $1.totalAmount })
+    }
+
+    // FUNÇÃO ALTERADA: Agora cria um ficheiro e devolve um URL
+    func generateCSV() -> URL? {
+        var csvString = "Date,Description,Category,Amount\n"
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        for expense in expenses.sorted(by: { $0.date < $1.date }) {
+            let date = dateFormatter.string(from: expense.date)
+            let description = "\"\(expense.description.replacingOccurrences(of: "\"", with: "\"\""))\""
+            let category = NSLocalizedString(expense.category.localizedNameKey, comment: "")
+            let amount = String(expense.amount)
+            csvString.append("\(date),\(description),\(category),\(amount)\n")
+        }
+
+        do {
+            // Cria um URL para um ficheiro no diretório temporário do sistema
+            let sanitizedDestination = destination.replacingOccurrences(of: "[^a-zA-Z0-9]+", with: "_", options: .regularExpression, range: nil)
+            let filename = "Voga_Export_\(sanitizedDestination).csv"
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+            
+            // Escreve os dados do CSV para esse ficheiro
+            try csvString.write(to: url, atomically: true, encoding: .utf8)
+            
+            return url
+        } catch {
+            print("Error generating CSV file: \(error.localizedDescription)")
+            return nil
+        }
     }
 }

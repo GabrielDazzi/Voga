@@ -65,3 +65,10 @@
 
 // MARK: - Charts
 "spending_chart" = "Gráfico de Gastos";
+
+// MARK: - Actions
+"export" = "Exportar";
+
+// MARK: - Export
+"trip_report_subject" = "Relatório da Viagem:";
+"trip_report_message" = "Segue o relatório de despesas da viagem para";
