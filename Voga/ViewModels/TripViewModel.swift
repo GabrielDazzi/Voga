@@ -24,7 +24,7 @@ class TripViewModel: ObservableObject {
         loadTrips()
     }
     
-    // MARK: - Funções de Gerenciamento de Viagens
+    // MARK: - Funções de Gestão de Viagens
     
     func addTrip(destination: String, duration: Int, budget: Double, currency: Currency) {
         let newTrip = Trip(destination: destination, durationInDays: duration, totalBudget: budget, currency: currency)
@@ -47,10 +47,12 @@ class TripViewModel: ObservableObject {
         trips[index].isCompleted = true
     }
     
-    func deleteTrip(at offsets: IndexSet, in tripList: [Trip]) {
-        let idsToRemove = offsets.map { tripList[$0].id }
-        trips.removeAll { idsToRemove.contains($0.id) }
+    // NOVA FUNÇÃO para apagar uma viagem específica.
+    func deleteTrip(_ tripToDelete: Trip) {
+        trips.removeAll { $0.id == tripToDelete.id }
     }
+
+    // A função antiga (deleteTrip at offsets) foi removida.
 
     // MARK: - Persistência
     
@@ -66,7 +68,4 @@ class TripViewModel: ObservableObject {
             self.trips = savedTrips
         }
     }
-    
-    // A SEÇÃO DE CÁLCULO FOI COMPLETAMENTE REMOVIDA DAQUI
-    // PORQUE AGORA ELA VIVE NA EXTENSÃO DO TRIP.
 }

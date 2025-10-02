@@ -74,6 +74,7 @@
 
 // MARK: - Actions
 "export" = "Export";
+"delete" = "Delete";
 
 // MARK: - Export
 "trip_report_subject" = "Trip Report:";
