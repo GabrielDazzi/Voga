@@ -3,7 +3,7 @@ import Combine
 import SwiftUI
 
 enum ThemeColor: String, CaseIterable, Identifiable {
-    case blue, green, orange, purple
+    case blue, green, orange, purple, white
     
     var id: String { self.rawValue }
     
@@ -17,6 +17,8 @@ enum ThemeColor: String, CaseIterable, Identifiable {
             return .orange
         case .purple:
             return .purple
+        case .white:
+            return .white
         }
     }
 }
