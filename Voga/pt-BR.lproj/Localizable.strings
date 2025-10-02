@@ -50,6 +50,12 @@
 "language" = "Idioma";
 "select_language" = "Selecionar Idioma";
 "language_change_notice" = "A mudança de idioma será totalmente aplicada ao reiniciar o aplicativo.";
+"appearance" = "Aparência";
+"accent_color" = "Cor de Destaque";
+"Blue" = "Azul";
+"Green" = "Verde";
+"Orange" = "Laranja";
+"Purple" = "Roxo";
 
 // MARK: - Currencies
 "currency_usd" = "Dólar Americano";

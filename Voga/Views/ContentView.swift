@@ -126,9 +126,11 @@ struct TripRowView: View {
     }
 }
 
+// ALTERAÇÃO AQUI
 struct TripSetupView: View {
     @ObservedObject var viewModel: TripViewModel
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var themeSettings: ThemeSettings // Aceder ao tema
     
     @State private var destination: String = ""
     @State private var duration: Int = 1
@@ -159,7 +161,8 @@ struct TripSetupView: View {
                 Button(action: addTripAndDismiss) {
                     Text("save_trip")
                         .frame(maxWidth: .infinity).padding()
-                        .background(isFormValid() ? Color.blue : Color.gray)
+                        // USA A COR DO TEMA AQUI
+                        .background(isFormValid() ? themeSettings.accentColor.colorValue : Color.gray)
                         .foregroundColor(.white).cornerRadius(10)
                 }
                 .disabled(!isFormValid())
@@ -186,6 +189,7 @@ struct TripSetupView: View {
     }
 }
 
+// ... TripDetailView não precisa de alterações ...
 struct TripDetailView: View {
     @ObservedObject var viewModel: TripViewModel
     let tripId: UUID
@@ -203,7 +207,6 @@ struct TripDetailView: View {
 
     var body: some View {
         List {
-            // A secção do resumo do orçamento é escondida para viagens concluídas
             if !trip.isCompleted {
                 Section(header: Text("budget_summary")) {
                     BudgetSummaryView(trip: trip)
@@ -228,7 +231,6 @@ struct TripDetailView: View {
                     ExpenseRowView(expense: expense, currencyCode: trip.currency.code)
                 }
                 .onDelete { offsets in
-                    // Só permite apagar despesas em viagens ativas
                     if !trip.isCompleted {
                         viewModel.deleteExpense(from: tripId, at: offsets)
                     }
@@ -238,9 +240,7 @@ struct TripDetailView: View {
         .listStyle(InsetGroupedListStyle())
         .navigationTitle(trip.destination)
         .toolbar {
-            // ** A LÓGICA FOI MOVIDA E INVERTIDA AQUI **
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                // Se a viagem está CONCLUÍDA, mostra o botão de partilha
                 if trip.isCompleted {
                     if !trip.expenses.isEmpty {
                         Button(action: {
@@ -252,9 +252,7 @@ struct TripDetailView: View {
                             Image(systemName: "square.and.arrow.up")
                         }
                     }
-                }
-                // Senão (se a viagem está ATIVA), mostra os outros botões
-                else {
+                } else {
                     Button(action: { showingEndTripAlert = true }) {
                         Image(systemName: "checkmark.circle.fill")
                     }
@@ -284,6 +282,7 @@ struct TripDetailView: View {
     }
 }
 
+// ... ShareSheet e AddExpenseView não precisam de alterações ...
 struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]
     
@@ -348,18 +347,22 @@ struct AddExpenseView: View {
     }
 }
 
+// ALTERAÇÃO AQUI
 struct BudgetSummaryView: View {
     let trip: Trip
+    @EnvironmentObject var themeSettings: ThemeSettings // Aceder ao tema
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 StatView(title: "total_budget", value: trip.totalBudget, color: .primary, currencyCode: trip.currency.code)
                 Spacer()
-                StatView(title: "daily_average", value: trip.dailyAverageBudget, color: .blue, alignment: .trailing, currencyCode: trip.currency.code)
+                // USA A COR DO TEMA AQUI
+                StatView(title: "daily_average", value: trip.dailyAverageBudget, color: themeSettings.accentColor.colorValue, alignment: .trailing, currencyCode: trip.currency.code)
             }
             ProgressView(value: trip.totalSpent, total: trip.totalBudget > 0 ? trip.totalBudget : 1)
-                .tint(trip.remainingBudget >= 0 ? .blue : .red)
+                // E AQUI
+                .tint(trip.remainingBudget >= 0 ? themeSettings.accentColor.colorValue : .red)
             HStack {
                 StatView(title: "total_spent", value: trip.totalSpent, color: .red, currencyCode: trip.currency.code)
                 Spacer()
@@ -370,6 +373,7 @@ struct BudgetSummaryView: View {
     }
 }
 
+// ... O resto do ficheiro não precisa de alterações ...
 struct CategorySpendingView: View {
     let trip: Trip
     let columns = [GridItem(.adaptive(minimum: 150))]

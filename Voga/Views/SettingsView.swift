@@ -1,23 +1,30 @@
 import SwiftUI
 
 struct SettingsView: View {
-    // Acessa o nosso gerenciador de idioma que virá do "ambiente"
     @EnvironmentObject var languageSettings: LanguageSettings
+    @EnvironmentObject var themeSettings: ThemeSettings // 1. Aceder ao gestor de temas
     
-    // Para fechar a tela modal (sheet)
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("language")) {
-                    // O Picker mostra os idiomas e atualiza a escolha do usuário
                     Picker("select_language", selection: $languageSettings.selectedLanguage) {
                         ForEach(SupportedLanguage.allCases) { language in
                             Text(language.rawValue).tag(language)
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
+                }
+                
+                // 2. NOVA SECÇÃO PARA A COR DO TEMA
+                Section(header: Text("appearance")) {
+                    Picker("accent_color", selection: $themeSettings.accentColor) {
+                        ForEach(ThemeColor.allCases) { color in
+                            Text(LocalizedStringKey(color.rawValue.capitalized)).tag(color)
+                        }
+                    }
                 }
                 
                 Section {
@@ -41,4 +48,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environmentObject(LanguageSettings())
+        .environmentObject(ThemeSettings())
 }
