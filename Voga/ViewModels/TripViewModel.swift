@@ -24,6 +24,8 @@ class TripViewModel: ObservableObject {
         loadTrips()
     }
     
+    // MARK: - Funções de Gerenciamento de Viagens
+    
     func addTrip(destination: String, duration: Int, budget: Double, currency: Currency) {
         let newTrip = Trip(destination: destination, durationInDays: duration, totalBudget: budget, currency: currency)
         trips.append(newTrip)
@@ -50,6 +52,8 @@ class TripViewModel: ObservableObject {
         trips.removeAll { idsToRemove.contains($0.id) }
     }
 
+    // MARK: - Persistência
+    
     private func saveTrips() {
         if let tripsData = try? JSONEncoder().encode(trips) {
             UserDefaults.standard.set(tripsData, forKey: userDefaultsKey)
@@ -62,23 +66,7 @@ class TripViewModel: ObservableObject {
             self.trips = savedTrips
         }
     }
-}
-
-extension Trip {
-    var totalSpent: Double {
-        expenses.reduce(0) { $0 + $1.amount }
-    }
     
-    var remainingBudget: Double {
-        totalBudget - totalSpent
-    }
-    
-    var dailyAverageBudget: Double {
-        guard durationInDays > 0 else { return 0 }
-        return totalBudget / Double(durationInDays)
-    }
-    
-    func spent(for category: BudgetCategory) -> Double {
-        expenses.filter { $0.category == category }.reduce(0) { $0 + $1.amount }
-    }
+    // A SEÇÃO DE CÁLCULO FOI COMPLETAMENTE REMOVIDA DAQUI
+    // PORQUE AGORA ELA VIVE NA EXTENSÃO DO TRIP.
 }

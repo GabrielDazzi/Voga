@@ -62,3 +62,6 @@
 "category_alimentacao" = "Alimentação";
 "category_transporte" = "Transporte";
 "category_lazer" = "Lazer";
+
+// MARK: - Charts
+"spending_chart" = "Gráfico de Gastos";

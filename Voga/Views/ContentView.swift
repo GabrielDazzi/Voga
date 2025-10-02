@@ -1,10 +1,49 @@
 import SwiftUI
+import Charts
 
 struct ContentView: View {
     @StateObject private var viewModel = TripViewModel()
 
     var body: some View {
         TripsListView(viewModel: viewModel)
+    }
+}
+
+// MARK: - VIEW DO GRÁFICO CORRIGIDA PARA IOS 16
+struct SpendingChartView: View {
+    let spendingData: [CategorySpending]
+    let currencyCode: String
+    
+    var body: some View {
+        Chart(spendingData) { data in
+            BarMark(
+                x: .value("Amount", data.totalAmount),
+                y: .value("Category", NSLocalizedString(data.category.localizedNameKey, comment: ""))
+            )
+            .foregroundStyle(data.category.color)
+            .cornerRadius(6)
+        }
+        .chartYAxis {
+            AxisMarks(values: .automatic) { _ in
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel(centered: true)
+            }
+        }
+        .chartXAxis {
+            AxisMarks(preset: .automatic, values: .automatic(desiredCount: 5)) { value in
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel {
+                    if let amount = value.as(Double.self) {
+                        // *** A CORREÇÃO ESTÁ AQUI ***
+                        // Removemos .notation(.compactName) para garantir compatibilidade com iOS 16
+                        Text(amount.formatted(.currency(code: currencyCode)))
+                    }
+                }
+            }
+        }
+        .frame(height: 200)
     }
 }
 
@@ -167,6 +206,12 @@ struct TripDetailView: View {
             if !trip.isCompleted {
                 Section(header: Text("budget_summary")) {
                     BudgetSummaryView(trip: trip)
+                }
+            }
+            
+            if !trip.expenses.isEmpty {
+                Section(header: Text("spending_chart")) {
+                    SpendingChartView(spendingData: trip.categorySpendingData, currencyCode: trip.currency.code)
                 }
             }
             
@@ -346,6 +391,7 @@ struct ExpenseRowView: View {
         .padding(.vertical, 8)
     }
 }
+
 
 #Preview {
     ContentView()

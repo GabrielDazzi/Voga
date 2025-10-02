@@ -1,7 +1,12 @@
 import Foundation
 import SwiftUI
 
-// Enum para moedas suportadas
+struct CategorySpending: Identifiable {
+    let id = UUID()
+    let category: BudgetCategory
+    let totalAmount: Double
+}
+
 enum Currency: String, CaseIterable, Identifiable, Codable {
     case usd
     case brl
@@ -10,7 +15,6 @@ enum Currency: String, CaseIterable, Identifiable, Codable {
 
     var id: String { self.rawValue }
 
-    // Código ISO 4217, essencial para formatação
     var code: String {
         switch self {
         case .usd: return "USD"
@@ -37,7 +41,6 @@ enum Currency: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-// Enumeração para as categorias de despesas.
 enum BudgetCategory: String, CaseIterable, Identifiable, Codable {
     case hospedagem
     case alimentacao
@@ -74,7 +77,6 @@ enum BudgetCategory: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-// Representa uma única despesa.
 struct Expense: Identifiable, Codable, Hashable {
     let id: UUID = UUID()
     var description: String
@@ -83,7 +85,6 @@ struct Expense: Identifiable, Codable, Hashable {
     var date: Date = Date()
 }
 
-// Representa a viagem completa com todos os seus dados.
 struct Trip: Identifiable, Codable {
     let id: UUID = UUID()
     var destination: String
@@ -92,4 +93,33 @@ struct Trip: Identifiable, Codable {
     var currency: Currency
     var expenses: [Expense] = []
     var isCompleted: Bool = false
+}
+
+// A LÓGICA DE CÁLCULO PERTENCE E VIVE APENAS AQUI.
+extension Trip {
+    var totalSpent: Double {
+        expenses.reduce(0) { $0 + $1.amount }
+    }
+    
+    var remainingBudget: Double {
+        totalBudget - totalSpent
+    }
+    
+    var dailyAverageBudget: Double {
+        guard durationInDays > 0 else { return 0 }
+        return totalBudget / Double(durationInDays)
+    }
+    
+    func spent(for category: BudgetCategory) -> Double {
+        expenses.filter { $0.category == category }.reduce(0) { $0 + $1.amount }
+    }
+    
+    var categorySpendingData: [CategorySpending] {
+        let groupedExpenses = Dictionary(grouping: expenses, by: { $0.category })
+        
+        return groupedExpenses.map { (category, expenses) in
+            let total = expenses.reduce(0) { $0 + $1.amount }
+            return CategorySpending(category: category, totalAmount: total)
+        }.sorted(by: { $0.totalAmount > $1.totalAmount })
+    }
 }
