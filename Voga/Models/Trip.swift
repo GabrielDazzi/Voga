@@ -2,8 +2,6 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-// A struct CSVFile FOI REMOVIDA daqui, pois dependia de APIs do iOS 17.
-
 struct CategorySpending: Identifiable {
     let id = UUID()
     let category: BudgetCategory
@@ -125,7 +123,6 @@ extension Trip {
         }.sorted(by: { $0.totalAmount > $1.totalAmount })
     }
 
-    // FUNÇÃO ALTERADA: Agora cria um ficheiro e devolve um URL
     func generateCSV() -> URL? {
         var csvString = "Date,Description,Category,Amount\n"
 
@@ -141,12 +138,10 @@ extension Trip {
         }
 
         do {
-            // Cria um URL para um ficheiro no diretório temporário do sistema
             let sanitizedDestination = destination.replacingOccurrences(of: "[^a-zA-Z0-9]+", with: "_", options: .regularExpression, range: nil)
             let filename = "Voga_Export_\(sanitizedDestination).csv"
             let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
             
-            // Escreve os dados do CSV para esse ficheiro
             try csvString.write(to: url, atomically: true, encoding: .utf8)
             
             return url

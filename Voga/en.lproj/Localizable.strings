@@ -12,6 +12,7 @@
 "completed_trips" = "Completed Trips";
 "no_completed_trips" = "No completed trips.";
 "budget" = "Budget:";
+"budget_label" = "Budget:";
 
 // MARK: - Trip Setup
 "new_trip" = "New Trip";
@@ -79,3 +80,7 @@
 // MARK: - Export
 "trip_report_subject" = "Trip Report:";
 "trip_report_message" = "Here is the expense report for the trip to";
+
+// MARK: - Empty State
+"empty_state_title" = "Ready for an Adventure?";
+"empty_state_description" = "Your next journey begins here. Tap the '+' button to plan your first trip and start tracking your budget.";

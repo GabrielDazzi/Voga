@@ -12,6 +12,7 @@
 "completed_trips" = "Viagens Finalizadas";
 "no_completed_trips" = "Nenhuma viagem finalizada.";
 "budget" = "Orçamento:";
+"budget_label" = "Orçamento:";
 
 // MARK: - Trip Setup
 "new_trip" = "Nova Viagem";
@@ -79,3 +80,7 @@
 // MARK: - Export
 "trip_report_subject" = "Relatório da Viagem:";
 "trip_report_message" = "Segue o relatório de despesas da viagem para";
+
+// MARK: - Empty State
+"empty_state_title" = "Pronto para uma Aventura?";
+"empty_state_description" = "A sua próxima jornada começa aqui. Toque no botão '+' para planear a sua primeira viagem e começar a controlar o seu orçamento.";

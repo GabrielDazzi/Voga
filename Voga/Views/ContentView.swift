@@ -14,7 +14,6 @@ struct ContentView: View {
     }
 }
 
-// ... SpendingChartView não precisa de alterações ...
 struct SpendingChartView: View {
     let spendingData: [CategorySpending]
     let currencyCode: String
@@ -58,50 +57,68 @@ struct TripsListView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    
-                    SectionHeader(title: "active_trips")
-                    
-                    if viewModel.activeTrips.isEmpty {
-                        CardView {
-                            Text("no_active_trips")
-                                .foregroundStyle(.secondary)
-                                .padding(.vertical, 40)
-                        }
-                    } else {
-                        ForEach(viewModel.activeTrips) { trip in
-                            NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                // Passamos a ação de apagar para a TripRowView
-                                TripRowView(trip: trip, onDelete: {
-                                    viewModel.deleteTrip(trip)
-                                })
-                            }
-                        }
-                        // O antigo .onDelete foi REMOVIDO daqui
+            ZStack {
+                if viewModel.trips.isEmpty {
+                    VStack(spacing: 20) {
+                        Image(systemName: "airplane.departure")
+                            .font(.system(size: 60))
+                            .foregroundStyle(.secondary)
+                        
+                        Text("empty_state_title")
+                            .font(.title2.weight(.bold))
+                        
+                        Text("empty_state_description")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
                     }
-                    
-                    SectionHeader(title: "completed_trips")
-                    
-                    if viewModel.completedTrips.isEmpty {
-                         CardView {
-                            Text("no_completed_trips")
-                                .foregroundStyle(.secondary)
-                                .padding(.vertical, 40)
-                        }
-                    } else {
-                        ForEach(viewModel.completedTrips) { trip in
-                            NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                // Passamos a ação de apagar para a TripRowView
-                                TripRowView(trip: trip, onDelete: {
-                                    viewModel.deleteTrip(trip)
-                                })
+                    .padding(40)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            
+                            SectionHeader(title: "active_trips")
+                            
+                            if viewModel.activeTrips.isEmpty {
+                                CardView {
+                                    Text("no_active_trips")
+                                        .foregroundStyle(.secondary)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                }
+                            } else {
+                                ForEach(viewModel.activeTrips) { trip in
+                                    NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
+                                        TripRowView(trip: trip, onDelete: {
+                                            viewModel.deleteTrip(trip)
+                                        })
+                                    }
+                                }
+                            }
+                            
+                            SectionHeader(title: "completed_trips")
+                            
+                            if viewModel.completedTrips.isEmpty {
+                                 CardView {
+                                    Text("no_completed_trips")
+                                        .foregroundStyle(.secondary)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                }
+                            } else {
+                                ForEach(viewModel.completedTrips) { trip in
+                                    NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
+                                        TripRowView(trip: trip, onDelete: {
+                                            viewModel.deleteTrip(trip)
+                                        })
+                                    }
+                                }
                             }
                         }
-                        // O antigo .onDelete foi REMOVIDO daqui
+                        .padding()
                     }
                 }
-                .padding()
             }
             .navigationTitle("my_trips")
             .background(Color(.systemGray6).ignoresSafeArea())
@@ -127,10 +144,9 @@ struct TripsListView: View {
     }
 }
 
-// ALTERAÇÃO AQUI para adicionar o menu de contexto
 struct TripRowView: View {
     let trip: Trip
-    let onDelete: () -> Void // Ação de apagar recebida da view pai
+    let onDelete: () -> Void
     
     var body: some View {
         CardView {
@@ -139,7 +155,7 @@ struct TripRowView: View {
                     Text(trip.destination)
                         .font(.headline)
                         .foregroundStyle(Color.primary)
-                    Text("\(NSLocalizedString("budget", comment: "")) \(trip.totalBudget.formatted(.currency(code: trip.currency.code)))")
+                    Text("\(NSLocalizedString("budget_label", comment: "")) \(trip.totalBudget.formatted(.currency(code: trip.currency.code)))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
@@ -152,10 +168,9 @@ struct TripRowView: View {
             }
         }
         .buttonStyle(.plain)
-        // Adiciona o menu que aparece ao pressionar e segurar
         .contextMenu {
             Button(role: .destructive) {
-                onDelete() // Executa a ação de apagar
+                onDelete()
             } label: {
                 Label("delete", systemImage: "trash")
             }
@@ -163,7 +178,6 @@ struct TripRowView: View {
     }
 }
 
-// ... O resto do ficheiro (TripSetupView, TripDetailView, etc.) não tem alterações ...
 struct TripSetupView: View {
     @ObservedObject var viewModel: TripViewModel
     @Environment(\.dismiss) var dismiss

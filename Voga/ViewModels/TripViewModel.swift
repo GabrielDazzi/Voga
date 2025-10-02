@@ -47,14 +47,9 @@ class TripViewModel: ObservableObject {
         trips[index].isCompleted = true
     }
     
-    // NOVA FUNÇÃO para apagar uma viagem específica.
     func deleteTrip(_ tripToDelete: Trip) {
         trips.removeAll { $0.id == tripToDelete.id }
     }
-
-    // A função antiga (deleteTrip at offsets) foi removida.
-
-    // MARK: - Persistência
     
     private func saveTrips() {
         if let tripsData = try? JSONEncoder().encode(trips) {

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var languageSettings: LanguageSettings
-    @EnvironmentObject var themeSettings: ThemeSettings // 1. Aceder ao gestor de temas
+    @EnvironmentObject var themeSettings: ThemeSettings
     
     @Environment(\.dismiss) var dismiss
 
@@ -18,7 +18,6 @@ struct SettingsView: View {
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 
-                // 2. NOVA SECÇÃO PARA A COR DO TEMA
                 Section(header: Text("appearance")) {
                     Picker("accent_color", selection: $themeSettings.accentColor) {
                         ForEach(ThemeColor.allCases) { color in
