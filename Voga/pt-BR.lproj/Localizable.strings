@@ -1,7 +1,64 @@
-/* 
-  Localizable.strings
-  Voga
+/* Localizable.strings (Portuguese, Brazil) */
 
-  Created by Gabriel Bonomo Dazzi on 02/10/25.
-  
-*/
+// MARK: - Geral
+"cancel" = "Cancelar";
+"settings" = "Configurações";
+"done" = "OK";
+
+// MARK: - Trips List
+"my_trips" = "Minhas Viagens";
+"active_trips" = "Viagens Ativas";
+"no_active_trips" = "Você não tem nenhuma viagem ativa.";
+"completed_trips" = "Viagens Finalizadas";
+"no_completed_trips" = "Nenhuma viagem finalizada.";
+"budget" = "Orçamento:";
+
+// MARK: - Trip Setup
+"new_trip" = "Nova Viagem";
+"trip_details" = "Detalhes da Viagem";
+"destination_placeholder" = "Destino (ex: Paris, França)";
+"duration_days" = "Duração: %d dias";
+"total_budget" = "Orçamento Total";
+"currency" = "Moeda";
+"save_trip" = "Salvar Viagem";
+
+// MARK: - Trip Details
+"unknown_destination" = "Destino Desconhecido";
+"budget_summary" = "Resumo do Orçamento";
+"category_spending" = "Gastos por Categoria";
+"expense_history" = "Histórico de Despesas";
+"no_expenses_yet" = "Nenhuma despesa registrada ainda.";
+"complete_trip_q" = "Finalizar Viagem?";
+"complete_trip_message" = "Você não poderá adicionar novas despesas a esta viagem. Deseja continuar?";
+"complete" = "Finalizar";
+
+// MARK: - Add Expense
+"new_expense" = "Nova Despesa";
+"expense_details" = "Detalhes da Despesa";
+"description_placeholder" = "Descrição (ex: Jantar)";
+"amount" = "Valor";
+"category" = "Categoria";
+"date" = "Data";
+"add_expense" = "Adicionar Despesa";
+
+// MARK: - Budget Summary
+"daily_average" = "Média Diária";
+"total_spent" = "Total Gasto";
+"remaining_balance" = "Saldo Restante";
+
+// MARK: - Settings
+"language" = "Idioma";
+"select_language" = "Selecionar Idioma";
+"language_change_notice" = "A mudança de idioma será totalmente aplicada ao reiniciar o aplicativo.";
+
+// MARK: - Currencies
+"currency_usd" = "Dólar Americano";
+"currency_brl" = "Real Brasileiro";
+"currency_eur" = "Euro";
+"currency_gbp" = "Libra Esterlina";
+
+// MARK: - Categories
+"category_hospedagem" = "Hospedagem";
+"category_alimentacao" = "Alimentação";
+"category_transporte" = "Transporte";
+"category_lazer" = "Lazer";

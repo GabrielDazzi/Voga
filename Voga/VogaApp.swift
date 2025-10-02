@@ -1,17 +1,14 @@
-//
-//  VogaApp.swift
-//  Voga
-//
-//  Created by Gabriel Bonomo Dazzi on 02/10/25.
-//
-
 import SwiftUI
 
 @main
 struct VogaApp: App {
+    @StateObject private var languageSettings = LanguageSettings()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(languageSettings)
+                .environment(\.locale, .init(identifier: languageSettings.selectedLanguage.code))
         }
     }
 }

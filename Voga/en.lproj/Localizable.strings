@@ -1,7 +1,64 @@
-/* 
-  Localizable.strings
-  Voga
+/* Localizable.strings (English) */
 
-  Created by Gabriel Bonomo Dazzi on 02/10/25.
-  
-*/
+// MARK: - Geral
+"cancel" = "Cancel";
+"settings" = "Settings";
+"done" = "Done";
+
+// MARK: - Trips List
+"my_trips" = "My Trips";
+"active_trips" = "Active Trips";
+"no_active_trips" = "You don't have any active trips.";
+"completed_trips" = "Completed Trips";
+"no_completed_trips" = "No completed trips.";
+"budget" = "Budget:";
+
+// MARK: - Trip Setup
+"new_trip" = "New Trip";
+"trip_details" = "Trip Details";
+"destination_placeholder" = "Destination (e.g., Paris, France)";
+"duration_days" = "Duration: %d days";
+"total_budget" = "Total Budget";
+"currency" = "Currency";
+"save_trip" = "Save Trip";
+
+// MARK: - Trip Details
+"unknown_destination" = "Unknown Destination";
+"budget_summary" = "Budget Summary";
+"category_spending" = "Spending by Category";
+"expense_history" = "Expense History";
+"no_expenses_yet" = "No expenses recorded yet.";
+"complete_trip_q" = "Complete Trip?";
+"complete_trip_message" = "You will not be able to add new expenses to this trip. Do you want to continue?";
+"complete" = "Complete";
+
+// MARK: - Add Expense
+"new_expense" = "New Expense";
+"expense_details" = "Expense Details";
+"description_placeholder" = "Description (e.g., Dinner)";
+"amount" = "Amount";
+"category" = "Category";
+"date" = "Date";
+"add_expense" = "Add Expense";
+
+// MARK: - Budget Summary
+"daily_average" = "Daily Average";
+"total_spent" = "Total Spent";
+"remaining_balance" = "Remaining Balance";
+
+// MARK: - Settings
+"language" = "Language";
+"select_language" = "Select Language";
+"language_change_notice" = "The language change will be fully applied when you restart the app.";
+
+// MARK: - Currencies
+"currency_usd" = "American Dollar";
+"currency_brl" = "Brazilian Real";
+"currency_eur" = "Euro";
+"currency_gbp" = "British Pound";
+
+// MARK: - Categories
+"category_hospedagem" = "Accommodation";
+"category_alimentacao" = "Food";
+"category_transporte" = "Transport";
+"category_lazer" = "Leisure";
