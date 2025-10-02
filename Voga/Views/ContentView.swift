@@ -3,7 +3,7 @@ import Charts
 
 struct ContentView: View {
     @StateObject private var viewModel = TripViewModel()
-    
+
     var body: some View {
         ZStack {
             Color(.systemGray6)
@@ -284,6 +284,17 @@ struct TripDetailView: View {
                         VStack {
                             ForEach(trip.expenses.sorted(by: { $0.date > $1.date })) { expense in
                                 ExpenseRowView(expense: expense, currencyCode: trip.currency.code)
+
+                                    .contextMenu {
+                                        if !trip.isCompleted {
+                                            Button(role: .destructive) {
+                                                viewModel.deleteExpense(expense, from: trip.id)
+                                            } label: {
+                                                Label("delete", systemImage: "trash")
+                                            }
+                                        }
+                                    }
+                                
                                 if expense.id != trip.expenses.sorted(by: { $0.date > $1.date }).last?.id {
                                     Divider()
                                 }

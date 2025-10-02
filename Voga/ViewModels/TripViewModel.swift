@@ -42,6 +42,11 @@ class TripViewModel: ObservableObject {
         trips[index].expenses.remove(atOffsets: offsets)
     }
     
+    func deleteExpense(_ expenseToDelete: Expense, from tripId: UUID) {
+        guard let tripIndex = trips.firstIndex(where: { $0.id == tripId }) else { return }
+        trips[tripIndex].expenses.removeAll { $0.id == expenseToDelete.id }
+    }
+    
     func markTripAsCompleted(_ trip: Trip) {
         guard let index = trips.firstIndex(where: { $0.id == trip.id }) else { return }
         trips[index].isCompleted = true
@@ -50,7 +55,7 @@ class TripViewModel: ObservableObject {
     func deleteTrip(_ tripToDelete: Trip) {
         trips.removeAll { $0.id == tripToDelete.id }
     }
-    
+
     private func saveTrips() {
         if let tripsData = try? JSONEncoder().encode(trips) {
             UserDefaults.standard.set(tripsData, forKey: userDefaultsKey)
