@@ -3,7 +3,7 @@ import Charts
 
 struct ContentView: View {
     @StateObject private var viewModel = TripViewModel()
-    
+
     var body: some View {
         ZStack {
             Color(.systemGray6)
@@ -54,7 +54,6 @@ struct TripsListView: View {
     @ObservedObject var viewModel: TripViewModel
     @State private var showingAddTripSheet = false
     @State private var showingSettingsSheet = false
-    @State private var showingEditSheet = false
     @State private var tripToEdit: Trip?
     
     var body: some View {
@@ -95,7 +94,6 @@ struct TripsListView: View {
                                     NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
                                         TripRowView(trip: trip, onEdit: {
                                             tripToEdit = trip
-                                            showingEditSheet = true
                                         }, onDelete: {
                                             viewModel.deleteTrip(trip)
                                         })
@@ -116,7 +114,6 @@ struct TripsListView: View {
                                     NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
                                         TripRowView(trip: trip, onEdit: {
                                             tripToEdit = trip
-                                            showingEditSheet = true
                                         }, onDelete: {
                                             viewModel.deleteTrip(trip)
                                         })
@@ -148,10 +145,8 @@ struct TripsListView: View {
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsView()
             }
-            .sheet(isPresented: $showingEditSheet) {
-                if let tripToEdit {
-                    EditTripView(viewModel: viewModel, trip: tripToEdit)
-                }
+            .sheet(item: $tripToEdit) { trip in
+                EditTripView(viewModel: viewModel, trip: trip)
             }
         }
     }
@@ -261,7 +256,6 @@ struct TripSetupView: View {
     }
 }
 
-
 struct EditTripView: View {
     @ObservedObject var viewModel: TripViewModel
     let trip: Trip
@@ -364,6 +358,7 @@ struct TripDetailView: View {
                         VStack {
                             ForEach(trip.expenses.sorted(by: { $0.date > $1.date })) { expense in
                                 ExpenseRowView(expense: expense, currencyCode: trip.currency.code)
+                                    .contentShape(Rectangle())
                                     .contextMenu {
                                         if !trip.isCompleted {
                                             Button(role: .destructive) {
@@ -503,25 +498,27 @@ struct BudgetSummaryView: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
-                Text(trip.totalBudget.formatted(.currency(code: trip.currency.code)))
+                Text(trip.remainingBudget.formatted(.currency(code: trip.currency.code)))
                     .font(.largeTitle.weight(.bold))
+                    .foregroundStyle(trip.remainingBudget >= 0 ? .green : .red)
                     .monospacedDigit()
                 
-                Text(NSLocalizedString("total_budget", comment: "").lowercased())
+                Text("remaining_balance")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+
             }
             
             ProgressView(value: trip.totalSpent, total: trip.totalBudget > 0 ? trip.totalBudget : 1)
                 .tint(trip.remainingBudget >= 0 ? themeSettings.accentColor.colorValue : .red)
                 .padding(.bottom)
-            
+        
             HStack(spacing: 20) {
                 StatView(title: "total_spent", value: trip.totalSpent, color: .red, currencyCode: trip.currency.code)
                 Spacer()
-                StatView(title: "remaining_balance", value: trip.remainingBudget, color: .green, currencyCode: trip.currency.code)
+                StatView(title: "total_budget", value: trip.totalBudget, color: .primary, currencyCode: trip.currency.code)
                 Spacer()
-                StatView(title: "daily_average", value: trip.dailyAverageBudget, color: themeSettings.accentColor.colorValue, currencyCode: trip.currency.code)
+                StatView(title: "daily_average", value: trip.dailyAverageBudget, color: .secondary, currencyCode: trip.currency.code)
             }
         }
         .padding()

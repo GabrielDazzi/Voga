@@ -18,7 +18,7 @@
 "trip_details" = "Detalhes da Viagem";
 "destination_placeholder" = "Destino (ex: Paris, França)";
 "duration_days" = "Duração: %d dias";
-"total_budget" = "Orçamento Total";
+"total_budget" = "Orçamento";
 "currency" = "Moeda";
 "save_trip" = "Salvar Viagem";
 
