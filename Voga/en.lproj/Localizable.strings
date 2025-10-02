@@ -1,6 +1,6 @@
 /* Localizable.strings (English) */
 
-// MARK: - Geral
+// MARK: - General
 "cancel" = "Cancel";
 "settings" = "Settings";
 "done" = "Done";
@@ -8,10 +8,9 @@
 // MARK: - Trips List
 "my_trips" = "My Trips";
 "active_trips" = "Active Trips";
-"no_active_trips" = "You don't have any active trips.";
+"no_active_trips" = "You have no active trips.";
 "completed_trips" = "Completed Trips";
 "no_completed_trips" = "No completed trips.";
-"budget" = "Budget:";
 "budget_label" = "Budget:";
 
 // MARK: - Trip Setup
@@ -76,6 +75,12 @@
 // MARK: - Actions
 "export" = "Export";
 "delete" = "Delete";
+"edit" = "Edit";
+
+// MARK: - Edit Trip
+"edit_trip" = "Edit Trip";
+"duration" = "Duration";
+"budget" = "Budget";
 
 // MARK: - Export
 "trip_report_subject" = "Trip Report:";

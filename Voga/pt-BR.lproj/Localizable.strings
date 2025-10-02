@@ -1,6 +1,6 @@
 /* Localizable.strings (Portuguese, Brazil) */
 
-// MARK: - Geral
+// MARK: - General
 "cancel" = "Cancelar";
 "settings" = "Configurações";
 "done" = "OK";
@@ -11,7 +11,6 @@
 "no_active_trips" = "Você não tem nenhuma viagem ativa.";
 "completed_trips" = "Viagens Finalizadas";
 "no_completed_trips" = "Nenhuma viagem finalizada.";
-"budget" = "Orçamento:";
 "budget_label" = "Orçamento:";
 
 // MARK: - Trip Setup
@@ -76,6 +75,12 @@
 // MARK: - Actions
 "export" = "Exportar";
 "delete" = "Apagar";
+"edit" = "Editar";
+
+// MARK: - Edit Trip
+"edit_trip" = "Editar Viagem";
+"duration" = "Duração";
+"budget" = "Orçamento";
 
 // MARK: - Export
 "trip_report_subject" = "Relatório da Viagem:";

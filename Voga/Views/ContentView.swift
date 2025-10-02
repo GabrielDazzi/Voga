@@ -3,7 +3,7 @@ import Charts
 
 struct ContentView: View {
     @StateObject private var viewModel = TripViewModel()
-
+    
     var body: some View {
         ZStack {
             Color(.systemGray6)
@@ -54,6 +54,8 @@ struct TripsListView: View {
     @ObservedObject var viewModel: TripViewModel
     @State private var showingAddTripSheet = false
     @State private var showingSettingsSheet = false
+    @State private var showingEditSheet = false
+    @State private var tripToEdit: Trip?
     
     var body: some View {
         NavigationView {
@@ -91,7 +93,10 @@ struct TripsListView: View {
                             } else {
                                 ForEach(viewModel.activeTrips) { trip in
                                     NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                        TripRowView(trip: trip, onDelete: {
+                                        TripRowView(trip: trip, onEdit: {
+                                            tripToEdit = trip
+                                            showingEditSheet = true
+                                        }, onDelete: {
                                             viewModel.deleteTrip(trip)
                                         })
                                     }
@@ -109,7 +114,10 @@ struct TripsListView: View {
                             } else {
                                 ForEach(viewModel.completedTrips) { trip in
                                     NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                        TripRowView(trip: trip, onDelete: {
+                                        TripRowView(trip: trip, onEdit: {
+                                            tripToEdit = trip
+                                            showingEditSheet = true
+                                        }, onDelete: {
                                             viewModel.deleteTrip(trip)
                                         })
                                     }
@@ -140,12 +148,18 @@ struct TripsListView: View {
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsView()
             }
+            .sheet(isPresented: $showingEditSheet) {
+                if let tripToEdit {
+                    EditTripView(viewModel: viewModel, trip: tripToEdit)
+                }
+            }
         }
     }
 }
 
 struct TripRowView: View {
     let trip: Trip
+    let onEdit: () -> Void
     let onDelete: () -> Void
     
     var body: some View {
@@ -169,6 +183,14 @@ struct TripRowView: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
+            if !trip.isCompleted {
+                Button {
+                    onEdit()
+                } label: {
+                    Label("edit", systemImage: "pencil")
+                }
+            }
+            
             Button(role: .destructive) {
                 onDelete()
             } label: {
@@ -239,6 +261,60 @@ struct TripSetupView: View {
     }
 }
 
+
+struct EditTripView: View {
+    @ObservedObject var viewModel: TripViewModel
+    let trip: Trip
+    
+    @Environment(\.dismiss) var dismiss
+    
+    @State private var duration: Int = 1
+    @State private var budget: String = ""
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text(trip.destination)) {
+                    Stepper(String(format: NSLocalizedString("duration_days", comment: ""), duration), value: $duration, in: 1...365)
+                    
+                    HStack {
+                        Text(trip.currency.symbol)
+                        TextField(NSLocalizedString("budget", comment: ""), text: $budget)
+                            .keyboardType(.decimalPad)
+                    }
+                }
+                
+                Button(action: saveChanges) {
+                    Text("save_trip")
+                        .frame(maxWidth: .infinity)
+                }
+                .disabled(!isFormValid())
+            }
+            .navigationTitle("edit_trip")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("cancel") { dismiss() }
+                }
+            }
+            .onAppear {
+                self.duration = trip.durationInDays
+                self.budget = String(trip.totalBudget)
+            }
+        }
+    }
+    
+    private func isFormValid() -> Bool {
+        Double(budget) != nil && duration > 0
+    }
+    
+    private func saveChanges() {
+        guard let budgetValue = Double(budget) else { return }
+        viewModel.updateTrip(tripId: trip.id, newDuration: duration, newBudget: budgetValue)
+        dismiss()
+    }
+}
+
+
 struct TripDetailView: View {
     @ObservedObject var viewModel: TripViewModel
     let tripId: UUID
@@ -249,6 +325,7 @@ struct TripDetailView: View {
     
     @State private var showingAddExpenseSheet = false
     @State private var showingEndTripAlert = false
+    @State private var showingEditSheet = false
     @Environment(\.presentationMode) var presentationMode
     
     @State private var showShareSheet = false
@@ -258,8 +335,11 @@ struct TripDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 if !trip.isCompleted {
-                    BudgetSummaryView(trip: trip)
-                        .padding(.top)
+                    Button(action: { showingEditSheet = true }) {
+                        BudgetSummaryView(trip: trip)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top)
                 }
                 
                 if !trip.expenses.isEmpty {
@@ -284,7 +364,6 @@ struct TripDetailView: View {
                         VStack {
                             ForEach(trip.expenses.sorted(by: { $0.date > $1.date })) { expense in
                                 ExpenseRowView(expense: expense, currencyCode: trip.currency.code)
-
                                     .contextMenu {
                                         if !trip.isCompleted {
                                             Button(role: .destructive) {
@@ -332,6 +411,9 @@ struct TripDetailView: View {
         }
         .sheet(isPresented: $showingAddExpenseSheet) {
             AddExpenseView(viewModel: viewModel, tripId: trip.id, currency: trip.currency)
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            EditTripView(viewModel: viewModel, trip: trip)
         }
         .sheet(isPresented: $showShareSheet) {
             if let url = csvURLToShare {

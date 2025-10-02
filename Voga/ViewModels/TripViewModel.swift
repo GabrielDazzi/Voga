@@ -31,15 +31,16 @@ class TripViewModel: ObservableObject {
         trips.append(newTrip)
     }
     
+    func updateTrip(tripId: UUID, newDuration: Int, newBudget: Double) {
+        guard let index = trips.firstIndex(where: { $0.id == tripId }) else { return }
+        trips[index].durationInDays = newDuration
+        trips[index].totalBudget = newBudget
+    }
+    
     func addExpense(to tripId: UUID, description: String, amount: Double, category: BudgetCategory, date: Date) {
         guard let index = trips.firstIndex(where: { $0.id == tripId }) else { return }
         let newExpense = Expense(description: description, amount: amount, category: category, date: date)
         trips[index].expenses.append(newExpense)
-    }
-    
-    func deleteExpense(from tripId: UUID, at offsets: IndexSet) {
-        guard let index = trips.firstIndex(where: { $0.id == tripId }) else { return }
-        trips[index].expenses.remove(atOffsets: offsets)
     }
     
     func deleteExpense(_ expenseToDelete: Expense, from tripId: UUID) {
