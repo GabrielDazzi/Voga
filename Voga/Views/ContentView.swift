@@ -285,7 +285,7 @@ struct TripDetailView: View {
         .background(VogaColor.backgroundPrimary)
         .navigationTitle(trip.destination)
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 if trip.isCompleted {
                     if !trip.expenses.isEmpty {
                         Button(action: {
@@ -294,8 +294,10 @@ struct TripDetailView: View {
                         }) { Image(systemName: "square.and.arrow.up") }
                     }
                 } else {
-                    Button(action: { showingEndTripAlert = true }) { Image(systemName: "checkmark.circle.fill") }
-                    Button(action: { showingAddExpenseSheet = true }) { Image(systemName: "plus.circle.fill") }
+                    HStack(spacing: 5) {
+                        Button(action: { showingEndTripAlert = true }) { Image(systemName: "checkmark.circle.fill") }
+                        Button(action: { showingAddExpenseSheet = true }) { Image(systemName: "plus.circle.fill") }
+                    }
                 }
             }
         }

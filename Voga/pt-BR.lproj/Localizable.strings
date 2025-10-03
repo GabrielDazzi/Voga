@@ -6,7 +6,7 @@
 "done" = "OK";
 
 // MARK: - Trips List
-"my_trips" = "Minhas Viagens";
+"my_trips" = "Viagens";
 "active_trips" = "Viagens Ativas";
 "no_active_trips" = "Você não tem nenhuma viagem ativa.";
 "completed_trips" = "Viagens Finalizadas";
