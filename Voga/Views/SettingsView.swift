@@ -2,8 +2,6 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var languageSettings: LanguageSettings
-    @EnvironmentObject var themeSettings: ThemeSettings
-    
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -16,14 +14,6 @@ struct SettingsView: View {
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
-                }
-                
-                Section(header: Text("appearance")) {
-                    Picker("accent_color", selection: $themeSettings.accentColor) {
-                        ForEach(ThemeColor.allCases) { color in
-                            Text(LocalizedStringKey(color.rawValue.capitalized)).tag(color)
-                        }
-                    }
                 }
                 
                 Section {
@@ -47,5 +37,4 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environmentObject(LanguageSettings())
-        .environmentObject(ThemeSettings())
 }

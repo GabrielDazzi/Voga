@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SplashScreenView: View {
     @Binding var isActive: Bool
-    @EnvironmentObject var themeSettings: ThemeSettings
     @State private var fillOffset: CGFloat = 200
     @State private var finalOpacity: Double = 1.0
     
@@ -17,7 +16,7 @@ struct SplashScreenView: View {
                 .overlay(
                     Text("Voga")
                         .font(.system(size: 80, weight: .bold))
-                        .foregroundStyle(themeSettings.accentColor.colorValue.gradient)
+                        .foregroundStyle(VogaColor.accent.gradient)
                         .mask(
                             Rectangle()
                                 .frame(height: 200)

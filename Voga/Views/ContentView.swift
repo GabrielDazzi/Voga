@@ -5,12 +5,7 @@ struct ContentView: View {
     @StateObject private var viewModel = TripViewModel()
 
     var body: some View {
-        ZStack {
-            Color(.systemGray6)
-                .ignoresSafeArea()
-            
-            TripsListView(viewModel: viewModel)
-        }
+        TripsListView(viewModel: viewModel)
     }
 }
 
@@ -49,7 +44,6 @@ struct SpendingChartView: View {
     }
 }
 
-
 struct TripsListView: View {
     @ObservedObject var viewModel: TripViewModel
     @State private var showingAddTripSheet = false
@@ -59,200 +53,111 @@ struct TripsListView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                if viewModel.trips.isEmpty {
-                    VStack(spacing: 20) {
-                        Image(systemName: "airplane.departure")
-                            .font(.system(size: 60))
-                            .foregroundStyle(.secondary)
-                        
-                        Text("empty_state_title")
-                            .font(.title2.weight(.bold))
-                        
-                        Text("empty_state_description")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-                    .padding(40)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                VogaColor.backgroundPrimary.ignoresSafeArea()
 
+                if viewModel.trips.isEmpty {
+                    emptyStateView
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            
-                            SectionHeader(title: "active_trips")
-                            
-                            if viewModel.activeTrips.isEmpty {
-                                CardView {
-                                    Text("no_active_trips")
-                                        .foregroundStyle(.secondary)
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                }
-                            } else {
+                    List {
+                        if !viewModel.activeTrips.isEmpty {
+                            Section(header: Text("active_trips")) {
                                 ForEach(viewModel.activeTrips) { trip in
                                     NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                        TripRowView(trip: trip, onEdit: {
-                                            tripToEdit = trip
-                                        }, onDelete: {
-                                            viewModel.deleteTrip(trip)
-                                        })
+                                        TripRowView(trip: trip)
                                     }
-                                }
-                            }
-                            
-                            SectionHeader(title: "completed_trips")
-                            
-                            if viewModel.completedTrips.isEmpty {
-                                 CardView {
-                                    Text("no_completed_trips")
-                                        .foregroundStyle(.secondary)
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                }
-                            } else {
-                                ForEach(viewModel.completedTrips) { trip in
-                                    NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                        TripRowView(trip: trip, onEdit: {
-                                            tripToEdit = trip
-                                        }, onDelete: {
-                                            viewModel.deleteTrip(trip)
-                                        })
-                                    }
+                                    .contextMenu { makeContextMenu(for: trip) }
                                 }
                             }
                         }
-                        .padding()
+                        
+                        if !viewModel.completedTrips.isEmpty {
+                            Section(header: Text("completed_trips")) {
+                                ForEach(viewModel.completedTrips) { trip in
+                                    NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
+                                        TripRowView(trip: trip)
+                                    }
+                                    .contextMenu { makeContextMenu(for: trip) }
+                                }
+                            }
+                        }
                     }
+                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("my_trips")
-            .background(Color(.systemGray6).ignoresSafeArea())
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { showingSettingsSheet = true }) {
-                        Image(systemName: "gear")
-                    }
+                    Button(action: { showingSettingsSheet = true }) { Image(systemName: "gear") }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddTripSheet = true }) {
-                        Image(systemName: "plus.circle.fill").font(.title2)
-                    }
+                    Button(action: { showingAddTripSheet = true }) { Image(systemName: "plus.circle.fill").font(.title2) }
                 }
             }
-            .sheet(isPresented: $showingAddTripSheet) {
-                TripSetupView(viewModel: viewModel)
+            .sheet(isPresented: $showingAddTripSheet) { TripSetupView(viewModel: viewModel) }
+            .sheet(isPresented: $showingSettingsSheet) { SettingsView() }
+            .sheet(item: $tripToEdit) { trip in EditTripView(viewModel: viewModel, trip: trip) }
+        }
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "airplane.departure")
+                .font(.system(size: 50))
+                .foregroundColor(VogaColor.textTertiary)
+            Text("empty_state_title")
+                .font(.title2.weight(.bold))
+                .foregroundColor(VogaColor.textPrimary)
+            Text("empty_state_description")
+                .font(.subheadline)
+                .foregroundColor(VogaColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .padding(40)
+    }
+    
+    @ViewBuilder
+    private func makeContextMenu(for trip: Trip) -> some View {
+        if !trip.isCompleted {
+            Button {
+                tripToEdit = trip
+            } label: {
+                Label("edit", systemImage: "pencil")
             }
-            .sheet(isPresented: $showingSettingsSheet) {
-                SettingsView()
-            }
-            .sheet(item: $tripToEdit) { trip in
-                EditTripView(viewModel: viewModel, trip: trip)
-            }
+        }
+        Button(role: .destructive) {
+            viewModel.deleteTrip(trip)
+        } label: {
+            Label("delete", systemImage: "trash")
         }
     }
 }
 
 struct TripRowView: View {
     let trip: Trip
-    let onEdit: () -> Void
-    let onDelete: () -> Void
     
     var body: some View {
-        CardView {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(trip.destination)
-                        .font(.headline)
-                        .foregroundStyle(Color.primary)
-                    Text("\(NSLocalizedString("budget_label", comment: "")) \(trip.totalBudget.formatted(.currency(code: trip.currency.code)))")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .monospacedDigit()
-                }
-                Spacer()
-                if trip.isCompleted {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                }
-                Image(systemName: "chevron.right").foregroundStyle(.secondary)
-            }
-        }
-        .buttonStyle(.plain)
-        .contextMenu {
-            if !trip.isCompleted {
-                Button {
-                    onEdit()
-                } label: {
-                    Label("edit", systemImage: "pencil")
-                }
+        HStack(spacing: 16) {
+            Image(systemName: trip.isCompleted ? "checkmark.circle.fill" : "airplane.departure")
+                .font(.title2)
+                .foregroundColor(trip.isCompleted ? .green : VogaColor.accent)
+                .frame(width: 30)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(trip.destination)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(VogaColor.textPrimary)
+                
+                Text(trip.totalBudget.formatted(.currency(code: trip.currency.code)))
+                    .font(.subheadline)
+                    .foregroundColor(VogaColor.textSecondary)
+                    .monospacedDigit()
             }
             
-            Button(role: .destructive) {
-                onDelete()
-            } label: {
-                Label("delete", systemImage: "trash")
-            }
+            Spacer()
         }
-    }
-}
-
-struct TripSetupView: View {
-    @ObservedObject var viewModel: TripViewModel
-    @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var themeSettings: ThemeSettings
-    
-    @State private var destination: String = ""
-    @State private var duration: Int = 1
-    @State private var budget: String = ""
-    @State private var currency: Currency = .usd
-
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("trip_details")) {
-                    TextField(NSLocalizedString("destination_placeholder", comment: ""), text: $destination)
-                    
-                    Stepper(String(format: NSLocalizedString("duration_days", comment: ""), duration), value: $duration, in: 1...365)
-                    
-                    Picker("currency", selection: $currency) {
-                        ForEach(Currency.allCases) { currency in
-                            Text(LocalizedStringKey(currency.localizedNameKey)).tag(currency)
-                        }
-                    }
-                    
-                    HStack {
-                        Text(currency.symbol)
-                        TextField(NSLocalizedString("total_budget", comment: ""), text: $budget)
-                            .keyboardType(.decimalPad)
-                    }
-                }
-                
-                Button(action: addTripAndDismiss) {
-                    Text("save_trip")
-                        .frame(maxWidth: .infinity).padding()
-                        .background(isFormValid() ? themeSettings.accentColor.colorValue : Color.gray)
-                        .foregroundColor(.white).cornerRadius(10)
-                }
-                .disabled(!isFormValid())
-            }
-            .navigationTitle("new_trip")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("cancel") { dismiss() }
-                }
-            }
-        }
-    }
-    
-    private func isFormValid() -> Bool {
-        !destination.trimmingCharacters(in: .whitespaces).isEmpty &&
-        Double(budget) != nil &&
-        duration > 0
-    }
-    
-    private func addTripAndDismiss() {
-        guard let budgetValue = Double(budget) else { return }
-        viewModel.addTrip(destination: destination, duration: duration, budget: budgetValue, currency: currency)
-        dismiss()
+        .padding(.vertical, 8)
     }
 }
 
@@ -308,13 +213,12 @@ struct EditTripView: View {
     }
 }
 
-
 struct TripDetailView: View {
     @ObservedObject var viewModel: TripViewModel
     let tripId: UUID
     
     private var trip: Trip {
-        viewModel.trips.first { $0.id == tripId } ?? Trip(destination: String(localized: "unknown_destination"), durationInDays: 0, totalBudget: 0, currency: .usd)
+        viewModel.trips.first { $0.id == tripId } ?? Trip(destination: "Unknown", durationInDays: 0, totalBudget: 0, currency: .usd)
     }
     
     @State private var showingAddExpenseSheet = false
@@ -327,38 +231,35 @@ struct TripDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if !trip.isCompleted {
-                    Button(action: { showingEditSheet = true }) {
-                        BudgetSummaryView(trip: trip)
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.top)
-                }
+            VStack(alignment: .leading, spacing: 24) {
                 
+                BudgetSummaryView(trip: trip)
+                    .onTapGesture { if !trip.isCompleted { showingEditSheet = true } }
+
                 if !trip.expenses.isEmpty {
-                    SectionHeader(title: "spending_chart")
-                    CardView {
+                    VStack(alignment: .leading, spacing: 12) {
+                        SectionHeader(title: "spending_chart")
                         SpendingChartView(spendingData: trip.categorySpendingData, currencyCode: trip.currency.code)
+                            .padding()
+                            .background(VogaColor.backgroundSecondary)
+                            .cornerRadius(16)
                     }
                 }
-                
-                SectionHeader(title: "category_spending")
-                CardView {
-                    CategorySpendingView(trip: trip)
-                }
-                
-                SectionHeader(title: "expense_history")
-                if trip.expenses.isEmpty {
-                    CardView {
-                        Text("no_expenses_yet").foregroundStyle(.secondary).padding(.vertical, 40)
-                    }
-                } else {
-                    CardView {
-                        VStack {
+
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionHeader(title: "expense_history")
+                    if trip.expenses.isEmpty {
+                        Text("no_expenses_yet")
+                            .foregroundStyle(VogaColor.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(40)
+                            .background(VogaColor.backgroundSecondary)
+                            .cornerRadius(16)
+                    } else {
+                        VStack(spacing: 0) {
                             ForEach(trip.expenses.sorted(by: { $0.date > $1.date })) { expense in
                                 ExpenseRowView(expense: expense, currencyCode: trip.currency.code)
-                                    .contentShape(Rectangle())
+                                    .padding()
                                     .contextMenu {
                                         if !trip.isCompleted {
                                             Button(role: .destructive) {
@@ -370,51 +271,37 @@ struct TripDetailView: View {
                                     }
                                 
                                 if expense.id != trip.expenses.sorted(by: { $0.date > $1.date }).last?.id {
-                                    Divider()
+                                    Divider().padding(.leading)
                                 }
                             }
                         }
+                        .background(VogaColor.backgroundSecondary)
+                        .cornerRadius(16)
                     }
                 }
             }
             .padding()
         }
+        .background(VogaColor.backgroundPrimary)
         .navigationTitle(trip.destination)
-        .background(Color(.systemGray6).ignoresSafeArea())
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 if trip.isCompleted {
                     if !trip.expenses.isEmpty {
                         Button(action: {
                             self.csvURLToShare = trip.generateCSV()
-                            if self.csvURLToShare != nil {
-                                self.showShareSheet = true
-                            }
-                        }) {
-                            Image(systemName: "square.and.arrow.up")
-                        }
+                            if self.csvURLToShare != nil { self.showShareSheet = true }
+                        }) { Image(systemName: "square.and.arrow.up") }
                     }
                 } else {
-                    Button(action: { showingEndTripAlert = true }) {
-                        Image(systemName: "checkmark.circle.fill")
-                    }
-                    Button(action: { showingAddExpenseSheet = true }) {
-                        Image(systemName: "plus.circle.fill")
-                    }
+                    Button(action: { showingEndTripAlert = true }) { Image(systemName: "checkmark.circle.fill") }
+                    Button(action: { showingAddExpenseSheet = true }) { Image(systemName: "plus.circle.fill") }
                 }
             }
         }
-        .sheet(isPresented: $showingAddExpenseSheet) {
-            AddExpenseView(viewModel: viewModel, tripId: trip.id, currency: trip.currency)
-        }
-        .sheet(isPresented: $showingEditSheet) {
-            EditTripView(viewModel: viewModel, trip: trip)
-        }
-        .sheet(isPresented: $showShareSheet) {
-            if let url = csvURLToShare {
-                ShareSheet(activityItems: [url])
-            }
-        }
+        .sheet(isPresented: $showingAddExpenseSheet) { AddExpenseView(viewModel: viewModel, tripId: trip.id, currency: trip.currency) }
+        .sheet(isPresented: $showingEditSheet) { EditTripView(viewModel: viewModel, trip: trip) }
+        .sheet(isPresented: $showShareSheet) { if let url = csvURLToShare { ShareSheet(activityItems: [url]) } }
         .alert("complete_trip_q", isPresented: $showingEndTripAlert) {
             Button("cancel", role: .cancel) {}
             Button("complete", role: .destructive) {
@@ -493,36 +380,41 @@ struct AddExpenseView: View {
 
 struct BudgetSummaryView: View {
     let trip: Trip
-    @EnvironmentObject var themeSettings: ThemeSettings
     
     var body: some View {
         VStack(spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
+            VStack {
+                Text("remaining_balance")
+                    .font(.headline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(VogaColor.textSecondary)
+                
                 Text(trip.remainingBudget.formatted(.currency(code: trip.currency.code)))
-                    .font(.largeTitle.weight(.bold))
+                    .font(.system(size: 48, weight: .bold))
                     .foregroundStyle(trip.remainingBudget >= 0 ? .green : .red)
                     .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 
-                Text("remaining_balance")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
             }
+            .padding(.bottom, 8)
             
             ProgressView(value: trip.totalSpent, total: trip.totalBudget > 0 ? trip.totalBudget : 1)
-                .tint(trip.remainingBudget >= 0 ? themeSettings.accentColor.colorValue : .red)
-                .padding(.bottom)
-        
-            HStack(spacing: 20) {
-                StatView(title: "total_spent", value: trip.totalSpent, color: .red, currencyCode: trip.currency.code)
+                .progressViewStyle(.linear)
+                .tint(trip.remainingBudget >= 0 ? VogaColor.accent : .red)
+
+            HStack {
+                StatView(title: "total_spent", value: trip.totalSpent, currencyCode: trip.currency.code)
                 Spacer()
-                StatView(title: "total_budget", value: trip.totalBudget, color: .primary, currencyCode: trip.currency.code)
+                StatView(title: "total_budget", value: trip.totalBudget, currencyCode: trip.currency.code)
                 Spacer()
-                StatView(title: "daily_average", value: trip.dailyAverageBudget, color: .secondary, currencyCode: trip.currency.code)
+                StatView(title: "daily_average", value: trip.dailyAverageBudget, currencyCode: trip.currency.code)
             }
         }
         .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .background(VogaColor.backgroundSecondary)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.1), radius: 10, y: 4)
     }
 }
 
@@ -555,16 +447,19 @@ struct CategorySpendingView: View {
 struct StatView: View {
     let title: LocalizedStringKey
     let value: Double
-    let color: Color
     let currencyCode: String
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(title).font(.caption).foregroundColor(.secondary)
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(VogaColor.textSecondary)
             Text(value.formatted(.currency(code: currencyCode)))
-                .font(.headline.weight(.bold))
-                .foregroundStyle(color)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(VogaColor.textPrimary)
                 .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
         }
     }
 }
@@ -580,21 +475,19 @@ struct ExpenseRowView: View {
                 .foregroundStyle(expense.category.color)
                 .frame(width: 40)
             VStack(alignment: .leading) {
-                Text(expense.description).font(.headline)
-                Text(expense.date, style: .date).font(.caption).foregroundStyle(.secondary)
+                Text(expense.description).font(.headline).foregroundStyle(VogaColor.textPrimary)
+                Text(expense.date, style: .date).font(.caption).foregroundStyle(VogaColor.textSecondary)
             }
             Spacer()
             Text(expense.amount.formatted(.currency(code: currencyCode)))
                 .fontWeight(.medium)
                 .monospacedDigit()
+                .foregroundStyle(VogaColor.textPrimary)
         }
-        .padding(.vertical, 4)
     }
 }
-
 
 #Preview {
     ContentView()
         .environmentObject(LanguageSettings())
-        .environmentObject(ThemeSettings())
 }

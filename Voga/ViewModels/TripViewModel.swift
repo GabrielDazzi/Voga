@@ -24,8 +24,6 @@ class TripViewModel: ObservableObject {
         loadTrips()
     }
     
-    // MARK: - Funções de Gestão de Viagens
-    
     func addTrip(destination: String, duration: Int, budget: Double, currency: Currency) {
         let newTrip = Trip(destination: destination, durationInDays: duration, totalBudget: budget, currency: currency)
         trips.append(newTrip)
