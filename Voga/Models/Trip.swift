@@ -2,7 +2,8 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct CategorySpending: Identifiable {
+// ADICIONADO Equatable AQUI
+struct CategorySpending: Identifiable, Equatable {
     let id = UUID()
     let category: BudgetCategory
     let totalAmount: Double
@@ -86,7 +87,8 @@ struct Expense: Identifiable, Codable, Hashable {
     var date: Date = Date()
 }
 
-struct Trip: Identifiable, Codable {
+// ADICIONADO Equatable AQUI
+struct Trip: Identifiable, Codable, Equatable {
     let id: UUID = UUID()
     var destination: String
     var durationInDays: Int

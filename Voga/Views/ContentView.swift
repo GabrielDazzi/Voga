@@ -1,11 +1,54 @@
 import SwiftUI
 import Charts
 
-// Estrutura auxiliar para o compartilhamento (adicionada aqui)
+// Estrutura auxiliar para o compartilhamento
 struct ShareableURL: Identifiable {
     let id = UUID()
     let url: URL
 }
+
+// COMPONENTE DE CARD ATUALIZADO COM O ESTILO SÓBRIO
+struct TripCardView: View {
+    let trip: Trip
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(trip.destination)
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(VogaColor.textPrimary) // Cor do texto ajustada
+            
+            Text(String(format: NSLocalizedString("duration_days", comment: ""), trip.durationInDays))
+                 .font(.subheadline)
+                 .fontWeight(.medium)
+                 .foregroundColor(VogaColor.textSecondary) // Cor do texto ajustada
+                 .padding(.bottom, 8)
+            
+            Spacer()
+            
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    Text("remaining_balance")
+                        .font(.caption)
+                        .foregroundColor(VogaColor.textSecondary) // Cor do texto ajustada
+                    Spacer()
+                    Text(trip.remainingBudget.formatted(.currency(code: trip.currency.code)))
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(VogaColor.textPrimary) // Cor do texto ajustada
+                }
+                
+                ProgressView(value: trip.totalSpent, total: trip.totalBudget > 0 ? trip.totalBudget : 1)
+                    .progressViewStyle(.linear)
+                    .tint(VogaColor.accent) // Cor da barra ajustada
+            }
+        }
+        .padding(20)
+        .frame(height: 180)
+        .background(VogaColor.backgroundSecondary) // COR DO FUNDO ALTERADA
+        .cornerRadius(24)
+        .shadow(color: .black.opacity(0.05), radius: 8, y: 4) // Sombra mais sutil
+    }
+}
+
 
 struct ContentView: View {
     @StateObject private var viewModel = TripViewModel()
@@ -46,6 +89,7 @@ struct SpendingChartView: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.6), value: spendingData)
         .frame(height: 200)
     }
 }
@@ -64,30 +108,36 @@ struct TripsListView: View {
                 if viewModel.trips.isEmpty {
                     emptyStateView
                 } else {
-                    List {
-                        if !viewModel.activeTrips.isEmpty {
-                            Section(header: Text("active_trips")) {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            if !viewModel.activeTrips.isEmpty {
+                                SectionHeader(title: "active_trips")
+                                
                                 ForEach(viewModel.activeTrips) { trip in
                                     NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                        TripRowView(trip: trip)
+                                        TripCardView(trip: trip)
                                     }
                                     .contextMenu { makeContextMenu(for: trip) }
+                                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
                                 }
                             }
-                        }
-                        
-                        if !viewModel.completedTrips.isEmpty {
-                            Section(header: Text("completed_trips")) {
+                            
+                            if !viewModel.completedTrips.isEmpty {
+                                SectionHeader(title: "completed_trips")
+                                
                                 ForEach(viewModel.completedTrips) { trip in
                                     NavigationLink(destination: TripDetailView(viewModel: viewModel, tripId: trip.id)) {
-                                        TripRowView(trip: trip)
+                                        TripCardView(trip: trip)
+                                            .opacity(0.7)
                                     }
                                     .contextMenu { makeContextMenu(for: trip) }
+                                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
                                 }
                             }
                         }
+                        .padding()
+                        .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0.2), value: viewModel.trips)
                     }
-                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("my_trips")
@@ -138,6 +188,7 @@ struct TripsListView: View {
         }
     }
 }
+
 
 struct TripRowView: View {
     let trip: Trip
@@ -232,7 +283,6 @@ struct TripDetailView: View {
     @State private var showingEditSheet = false
     @Environment(\.presentationMode) var presentationMode
     
-    // VARIÁVEIS MODIFICADAS PARA A CORREÇÃO
     @State private var shareableURL: ShareableURL?
 
     var body: some View {
@@ -294,7 +344,6 @@ struct TripDetailView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if trip.isCompleted {
                     if !trip.expenses.isEmpty {
-                        // BOTÃO DE COMPARTILHAR MODIFICADO
                         Button(action: {
                             if let url = trip.generateCSV() {
                                 self.shareableURL = ShareableURL(url: url)
@@ -311,7 +360,6 @@ struct TripDetailView: View {
         }
         .sheet(isPresented: $showingAddExpenseSheet) { AddExpenseView(viewModel: viewModel, tripId: trip.id, currency: trip.currency) }
         .sheet(isPresented: $showingEditSheet) { EditTripView(viewModel: viewModel, trip: trip) }
-        // MODIFICADOR .SHEET ATUALIZADO
         .sheet(item: $shareableURL) { item in
             ShareSheet(activityItems: [item.url])
         }
