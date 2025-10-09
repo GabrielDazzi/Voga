@@ -1,6 +1,12 @@
 import SwiftUI
 import Charts
 
+// Estrutura auxiliar para o compartilhamento (adicionada aqui)
+struct ShareableURL: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
 struct ContentView: View {
     @StateObject private var viewModel = TripViewModel()
 
@@ -226,8 +232,8 @@ struct TripDetailView: View {
     @State private var showingEditSheet = false
     @Environment(\.presentationMode) var presentationMode
     
-    @State private var showShareSheet = false
-    @State private var csvURLToShare: URL?
+    // VARIÁVEIS MODIFICADAS PARA A CORREÇÃO
+    @State private var shareableURL: ShareableURL?
 
     var body: some View {
         ScrollView {
@@ -288,9 +294,11 @@ struct TripDetailView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if trip.isCompleted {
                     if !trip.expenses.isEmpty {
+                        // BOTÃO DE COMPARTILHAR MODIFICADO
                         Button(action: {
-                            self.csvURLToShare = trip.generateCSV()
-                            if self.csvURLToShare != nil { self.showShareSheet = true }
+                            if let url = trip.generateCSV() {
+                                self.shareableURL = ShareableURL(url: url)
+                            }
                         }) { Image(systemName: "square.and.arrow.up") }
                     }
                 } else {
@@ -303,7 +311,10 @@ struct TripDetailView: View {
         }
         .sheet(isPresented: $showingAddExpenseSheet) { AddExpenseView(viewModel: viewModel, tripId: trip.id, currency: trip.currency) }
         .sheet(isPresented: $showingEditSheet) { EditTripView(viewModel: viewModel, trip: trip) }
-        .sheet(isPresented: $showShareSheet) { if let url = csvURLToShare { ShareSheet(activityItems: [url]) } }
+        // MODIFICADOR .SHEET ATUALIZADO
+        .sheet(item: $shareableURL) { item in
+            ShareSheet(activityItems: [item.url])
+        }
         .alert("complete_trip_q", isPresented: $showingEndTripAlert) {
             Button("cancel", role: .cancel) {}
             Button("complete", role: .destructive) {
