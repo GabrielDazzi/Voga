@@ -56,12 +56,12 @@ struct TripSetupView: View {
     
     private func isFormValid() -> Bool {
         !destination.trimmingCharacters(in: .whitespaces).isEmpty &&
-        Double(budget) != nil &&
+        CurrencyFormatter.parseDouble(from: budget) != nil &&
         duration > 0
     }
     
     private func addTripAndDismiss() {
-        guard let budgetValue = Double(budget) else { return }
+        guard let budgetValue = CurrencyFormatter.parseDouble(from: budget) else { return }
         viewModel.addTrip(destination: destination, duration: duration, budget: budgetValue, currency: currency)
         dismiss()
     }

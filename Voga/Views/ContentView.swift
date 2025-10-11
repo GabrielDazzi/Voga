@@ -254,17 +254,17 @@ struct EditTripView: View {
             }
             .onAppear {
                 self.duration = trip.durationInDays
-                self.budget = String(trip.totalBudget)
+                self.budget = CurrencyFormatter.format(value: trip.totalBudget)
             }
         }
     }
     
     private func isFormValid() -> Bool {
-        Double(budget) != nil && duration > 0
+        CurrencyFormatter.parseDouble(from: budget) != nil && duration > 0
     }
     
     private func saveChanges() {
-        guard let budgetValue = Double(budget) else { return }
+        guard let budgetValue = CurrencyFormatter.parseDouble(from: budget) else { return }
         viewModel.updateTrip(tripId: trip.id, newDuration: duration, newBudget: budgetValue)
         dismiss()
     }
@@ -429,11 +429,11 @@ struct AddExpenseView: View {
     }
     
     private func isFormValid() -> Bool {
-        !description.trimmingCharacters(in: .whitespaces).isEmpty && Double(amount) != nil
+        !description.trimmingCharacters(in: .whitespaces).isEmpty && CurrencyFormatter.parseDouble(from: amount) != nil
     }
     
     private func addExpense() {
-        guard let amountValue = Double(amount) else { return }
+        guard let amountValue = CurrencyFormatter.parseDouble(from: amount) else { return }
         viewModel.addExpense(to: tripId, description: description, amount: amountValue, category: category, date: date)
         dismiss()
     }
