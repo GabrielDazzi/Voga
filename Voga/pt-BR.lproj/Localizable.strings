@@ -1,16 +1,16 @@
-/* Localizable.strings (Portuguese, Brazil) */
+/* Localizable.strings (Portuguese) */
 
 // MARK: - General
 "cancel" = "Cancelar";
-"settings" = "Configurações";
+"settings" = "Ajustes";
 "done" = "OK";
 
 // MARK: - Trips List
-"my_trips" = "Viagens";
+"my_trips" = "Minhas Viagens";
 "active_trips" = "Viagens Ativas";
-"no_active_trips" = "Você não tem nenhuma viagem ativa.";
-"completed_trips" = "Viagens Finalizadas";
-"no_completed_trips" = "Nenhuma viagem finalizada.";
+"no_active_trips" = "Você não tem viagens ativas.";
+"completed_trips" = "Viagens Concluídas";
+"no_completed_trips" = "Nenhuma viagem concluída.";
 "budget_label" = "Orçamento:";
 
 // MARK: - Trip Setup
@@ -21,6 +21,9 @@
 "total_budget" = "Orçamento";
 "currency" = "Moeda";
 "save_trip" = "Salvar Viagem";
+"select_dates" = "Selecionar Datas";
+"select_travel_dates" = "Selecione as datas da viagem";
+"duration_days_format" = "%d dias";
 
 // MARK: - Trip Details
 "unknown_destination" = "Destino Desconhecido";
@@ -28,9 +31,9 @@
 "category_spending" = "Gastos por Categoria";
 "expense_history" = "Histórico de Despesas";
 "no_expenses_yet" = "Nenhuma despesa registrada ainda.";
-"complete_trip_q" = "Finalizar Viagem?";
+"complete_trip_q" = "Concluir Viagem?";
 "complete_trip_message" = "Você não poderá adicionar novas despesas a esta viagem. Deseja continuar?";
-"complete" = "Finalizar";
+"complete" = "Concluir";
 
 // MARK: - Add Expense
 "new_expense" = "Nova Despesa";
@@ -49,14 +52,13 @@
 // MARK: - Settings
 "language" = "Idioma";
 "select_language" = "Selecionar Idioma";
-"language_change_notice" = "A mudança de idioma será totalmente aplicada ao reiniciar o aplicativo.";
+"language_change_notice" = "A mudança de idioma será aplicada completamente quando você reiniciar o aplicativo.";
 "appearance" = "Aparência";
 "accent_color" = "Cor de Destaque";
 "Blue" = "Azul";
 "Green" = "Verde";
 "Orange" = "Laranja";
 "Purple" = "Roxo";
-"White" = "Branco";
 
 // MARK: - Currencies
 "currency_usd" = "Dólar Americano";
@@ -75,7 +77,7 @@
 
 // MARK: - Actions
 "export" = "Exportar";
-"delete" = "Apagar";
+"delete" = "Excluir";
 "edit" = "Editar";
 
 // MARK: - Edit Trip
@@ -84,9 +86,9 @@
 "budget" = "Orçamento";
 
 // MARK: - Export
-"trip_report_subject" = "Relatório da Viagem:";
-"trip_report_message" = "Segue o relatório de despesas da viagem para";
+"trip_report_subject" = "Relatório de Viagem:";
+"trip_report_message" = "Aqui está o relatório de despesas da viagem para";
 
 // MARK: - Empty State
 "empty_state_title" = "Pronto para uma Aventura?";
-"empty_state_description" = "A sua próxima jornada começa aqui. Toque no botão '+' para planear a sua primeira viagem e começar a controlar o seu orçamento.";
+"empty_state_description" = "Sua próxima jornada começa aqui. Toque no botão '+' para planejar sua primeira viagem e começar a controlar seu orçamento.";

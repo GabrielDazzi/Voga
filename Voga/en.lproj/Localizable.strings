@@ -21,6 +21,9 @@
 "total_budget" = "Budget";
 "currency" = "Currency";
 "save_trip" = "Save Trip";
+"select_dates" = "Select Dates";
+"select_travel_dates" = "Select travel dates";
+"duration_days_format" = "%d days";
 
 // MARK: - Trip Details
 "unknown_destination" = "Unknown Destination";

@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-// ADICIONADO Equatable AQUI
 struct CategorySpending: Identifiable, Equatable {
     let id = UUID()
     let category: BudgetCategory
@@ -86,16 +85,20 @@ struct Expense: Identifiable, Codable, Hashable {
     var category: BudgetCategory
     var date: Date = Date()
 }
-
-// ADICIONADO Equatable AQUI
 struct Trip: Identifiable, Codable, Equatable {
     let id: UUID = UUID()
     var destination: String
-    var durationInDays: Int
+    var startDate: Date
+    var endDate: Date
     var totalBudget: Double
     var currency: Currency
     var expenses: [Expense] = []
     var isCompleted: Bool = false
+    
+    var durationInDays: Int {
+        let components = Calendar.current.dateComponents([.day], from: startDate, to: endDate)
+        return (components.day ?? 0) + 1
+    }
 }
 
 extension Trip {
@@ -123,6 +126,27 @@ extension Trip {
             let total = expenses.reduce(0) { $0 + $1.amount }
             return CategorySpending(category: category, totalAmount: total)
         }.sorted(by: { $0.totalAmount > $1.totalAmount })
+    }
+    
+    var formattedDateRange: String {
+        let formatter = DateFormatter()
+        let startMonth = Calendar.current.component(.month, from: startDate)
+        let endMonth = Calendar.current.component(.month, from: endDate)
+        
+        if startMonth == endMonth {
+            let startDay = Calendar.current.component(.day, from: startDate)
+            
+            formatter.setLocalizedDateFormatFromTemplate("dMMMM")
+            let endDayMonth = formatter.string(from: endDate)
+            
+            return "\(startDay) - \(endDayMonth)"
+        } else {
+            formatter.setLocalizedDateFormatFromTemplate("dMMM")
+            let startString = formatter.string(from: startDate)
+            let endString = formatter.string(from: endDate)
+            
+            return "\(startString) - \(endString)"
+        }
     }
 
     func generateCSV() -> URL? {

@@ -1,13 +1,11 @@
 import SwiftUI
 import Charts
 
-// Estrutura auxiliar para o compartilhamento
 struct ShareableURL: Identifiable {
     let id = UUID()
     let url: URL
 }
 
-// COMPONENTE DE CARD ATUALIZADO COM O ESTILO SÓBRIO
 struct TripCardView: View {
     let trip: Trip
     
@@ -15,13 +13,25 @@ struct TripCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(trip.destination)
                 .font(.system(size: 28, weight: .bold))
-                .foregroundColor(VogaColor.textPrimary) // Cor do texto ajustada
+                .foregroundColor(VogaColor.textPrimary)
             
-            Text(String(format: NSLocalizedString("duration_days", comment: ""), trip.durationInDays))
-                 .font(.subheadline)
-                 .fontWeight(.medium)
-                 .foregroundColor(VogaColor.textSecondary) // Cor do texto ajustada
-                 .padding(.bottom, 8)
+            HStack {
+                Text(trip.formattedDateRange)
+                     .font(.subheadline)
+                     .fontWeight(.medium)
+                
+                Spacer()
+                
+                Text(String.localizedStringWithFormat(NSLocalizedString("duration_days_format", comment: ""), trip.durationInDays))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(VogaColor.accent.opacity(0.15))
+                    .clipShape(Capsule())
+            }
+            .foregroundColor(VogaColor.textSecondary)
+            .padding(.bottom, 8)
             
             Spacer()
             
@@ -224,14 +234,48 @@ struct EditTripView: View {
     
     @Environment(\.dismiss) var dismiss
     
-    @State private var duration: Int = 1
+    @State private var selectedDates: Set<DateComponents> = []
     @State private var budget: String = ""
+    
+    @State private var isShowingCalendarSheet = false
+    
+    private var startDate: Date? {
+        let sortedDates = selectedDates.compactMap { Calendar.current.date(from: $0) }.sorted()
+        return sortedDates.first
+    }
+
+    private var endDate: Date? {
+        let sortedDates = selectedDates.compactMap { Calendar.current.date(from: $0) }.sorted()
+        return sortedDates.last
+    }
+    
+    private var dateRangeDisplayText: String {
+        guard let start = startDate, let end = endDate else {
+            return NSLocalizedString("select_travel_dates", comment: "")
+        }
+        
+        if Calendar.current.isDate(start, inSameDayAs: end) {
+            return start.formatted(date: .abbreviated, time: .omitted)
+        }
+        
+        return "\(start.formatted(date: .abbreviated, time: .omitted)) - \(end.formatted(date: .abbreviated, time: .omitted))"
+    }
     
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text(trip.destination)) {
-                    Stepper(String(format: NSLocalizedString("duration_days", comment: ""), duration), value: $duration, in: 1...365)
+                    Button(action: {
+                        isShowingCalendarSheet = true
+                    }) {
+                        HStack {
+                            Image(systemName: "calendar")
+                                .foregroundColor(VogaColor.accent)
+                            Text(dateRangeDisplayText)
+                                .foregroundColor(VogaColor.textPrimary)
+                            Spacer()
+                        }
+                    }
                     
                     HStack {
                         Text(trip.currency.symbol)
@@ -253,19 +297,31 @@ struct EditTripView: View {
                 }
             }
             .onAppear {
-                self.duration = trip.durationInDays
                 self.budget = CurrencyFormatter.format(value: trip.totalBudget)
+                
+                var date = trip.startDate
+                let calendar = Calendar.current
+                while date <= trip.endDate {
+                    selectedDates.insert(calendar.dateComponents([.year, .month, .day], from: date))
+                    date = calendar.date(byAdding: .day, value: 1, to: date)!
+                }
+            }
+            .sheet(isPresented: $isShowingCalendarSheet) {
+                DatePickerSheetView(selectedDateComponents: $selectedDates)
             }
         }
     }
     
     private func isFormValid() -> Bool {
-        CurrencyFormatter.parseDouble(from: budget) != nil && duration > 0
+        CurrencyFormatter.parseDouble(from: budget) != nil && startDate != nil && endDate != nil
     }
     
     private func saveChanges() {
-        guard let budgetValue = CurrencyFormatter.parseDouble(from: budget) else { return }
-        viewModel.updateTrip(tripId: trip.id, newDuration: duration, newBudget: budgetValue)
+        guard let budgetValue = CurrencyFormatter.parseDouble(from: budget),
+              let validStartDate = startDate,
+              let validEndDate = endDate else { return }
+        
+        viewModel.updateTrip(tripId: trip.id, newStartDate: validStartDate, newEndDate: validEndDate, newBudget: budgetValue)
         dismiss()
     }
 }
@@ -275,7 +331,7 @@ struct TripDetailView: View {
     let tripId: UUID
     
     private var trip: Trip {
-        viewModel.trips.first { $0.id == tripId } ?? Trip(destination: "Unknown", durationInDays: 0, totalBudget: 0, currency: .usd)
+        viewModel.trips.first { $0.id == tripId } ?? Trip(destination: "Unknown", startDate: Date(), endDate: Date(), totalBudget: 0, currency: .usd)
     }
     
     @State private var showingAddExpenseSheet = false
