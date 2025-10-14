@@ -3,6 +3,7 @@ import SwiftUI
 struct TripSetupView: View {
     @ObservedObject var viewModel: TripViewModel
     @Environment(\.dismiss) var dismiss
+    @Environment(\.locale) var locale
     
     @State private var destination: String = ""
     @State private var selectedDates: Set<DateComponents> = []
@@ -26,11 +27,13 @@ struct TripSetupView: View {
             return NSLocalizedString("select_travel_dates", comment: "")
         }
         
+        let formatStyle = Date.FormatStyle.dateTime.day().month().locale(locale)
+        
         if Calendar.current.isDate(start, inSameDayAs: end) {
-            return start.formatted(date: .abbreviated, time: .omitted)
+            return start.formatted(formatStyle)
         }
         
-        return "\(start.formatted(date: .abbreviated, time: .omitted)) - \(end.formatted(date: .abbreviated, time: .omitted))"
+        return "\(start.formatted(formatStyle)) - \(end.formatted(formatStyle))"
     }
 
     var body: some View {

@@ -39,23 +39,23 @@ struct TripCardView: View {
                 HStack {
                     Text("remaining_balance")
                         .font(.caption)
-                        .foregroundColor(VogaColor.textSecondary) // Cor do texto ajustada
+                        .foregroundColor(VogaColor.textSecondary)
                     Spacer()
                     Text(trip.remainingBudget.formatted(.currency(code: trip.currency.code)))
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(VogaColor.textPrimary) // Cor do texto ajustada
+                        .foregroundColor(VogaColor.textPrimary)
                 }
                 
                 ProgressView(value: trip.totalSpent, total: trip.totalBudget > 0 ? trip.totalBudget : 1)
                     .progressViewStyle(.linear)
-                    .tint(VogaColor.accent) // Cor da barra ajustada
+                    .tint(VogaColor.accent)
             }
         }
         .padding(20)
         .frame(height: 180)
-        .background(VogaColor.backgroundSecondary) // COR DO FUNDO ALTERADA
+        .background(VogaColor.backgroundSecondary)
         .cornerRadius(24)
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 4) // Sombra mais sutil
+        .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
     }
 }
 
@@ -233,6 +233,7 @@ struct EditTripView: View {
     let trip: Trip
     
     @Environment(\.dismiss) var dismiss
+    @Environment(\.locale) var locale
     
     @State private var selectedDates: Set<DateComponents> = []
     @State private var budget: String = ""
@@ -254,11 +255,13 @@ struct EditTripView: View {
             return NSLocalizedString("select_travel_dates", comment: "")
         }
         
+        let formatStyle = Date.FormatStyle.dateTime.day().month().locale(locale)
+        
         if Calendar.current.isDate(start, inSameDayAs: end) {
-            return start.formatted(date: .abbreviated, time: .omitted)
+            return start.formatted(formatStyle)
         }
         
-        return "\(start.formatted(date: .abbreviated, time: .omitted)) - \(end.formatted(date: .abbreviated, time: .omitted))"
+        return "\(start.formatted(formatStyle)) - \(end.formatted(formatStyle))"
     }
     
     var body: some View {
