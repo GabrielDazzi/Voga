@@ -19,9 +19,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/1.png" alt="VogaTrip screenshot 1" width="220"/>
-  <img src="docs/screenshots/2.png" alt="VogaTrip screenshot 2" width="220"/>
-  <img src="docs/screenshots/3.png" alt="VogaTrip screenshot 3" width="220"/>
+  <img src="docs/screenshots/1.png" alt="Trip list with an active trip to Maringá and a completed trip to Curitiba" width="200"/>
+  <img src="docs/screenshots/2.png" alt="New trip form with destination, duration, currency, and budget" width="200"/>
+  <img src="docs/screenshots/3.png" alt="Maringá trip with remaining balance, a spending chart, and expense history" width="200"/>
+  <img src="docs/screenshots/4.png" alt="Curitiba trip with a category chart and the share button" width="200"/>
 </p>
 
 ## Features
